@@ -1,2 +1,2 @@
 # visged
-Visualise tidygedcom family tree objects.
+Visualise tidyged family tree objects.
