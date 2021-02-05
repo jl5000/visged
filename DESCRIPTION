@@ -1,0 +1,23 @@
+Package: visged
+Title: Visualise GEDCOM Files
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Jamie",
+           family = "Lendrum",
+           role = c("aut", "cre"),
+           email = "jalendrum@gmail.com")
+Description: Produce a variety of visualisations for family tree GEDCOM files.
+URL: https://github.com/jl5000/visged
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE, roclets = c("namespace", "rd"))
+RoxygenNote: 7.1.1
+Depends:
+    tidyged.io
+Imports: 
+    tidyged
+Suggests: 
+    testthat (>= 3.0.0),
+    roxytest
+Remotes: jl5000/tidyged, jl5000/tidyged.io
