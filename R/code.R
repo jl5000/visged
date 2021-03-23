@@ -1,5 +1,21 @@
 
 
+#' Create node labels for pedigree and descendancy charts
+#' 
+#' This function creates brief summaries of individuals and relationships formatted
+#' for the DiagrammeR::mermaid() function.
+#'
+#' @param gedcom A tidyged object.
+#' @param xref The xref of the Individual or Family Group record.
+#'
+#' @return A string describing a node to use in the DiagrammeR::mermaid() function.
+#' @tests
+#' expect_equal(node_label(tidyged::sample555, "@I1@"),
+#' "I1(<b>Robert Eugene Williams</b><br>b. 2 Oct 1822<br>Weston, Madison, Connecticut, United States of America<br>d. 14 Apr 1905<br>Stamford, Fairfield, Connecticut, United States of America)")
+#' expect_equal(node_label(tidyged::sample555, "@I3@"),
+#' "I3(<b>Joe Williams</b><br>b. 11 Jun 1861<br>Idaho Falls, Bonneville, Idaho, United States of America<br>d. )")
+#' expect_equal(node_label(tidyged::sample555, "@F1@"),
+#' "F1(m. Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America)")
 node_label <- function(gedcom, xref) {
   
   #I1(<b>Joe Billy Bloggs</b><br>b. 1980<br>Somewhere<br>d. 2100<br>Somewhere else)
@@ -43,6 +59,19 @@ node_label <- function(gedcom, xref) {
   
 }
 
+#' Create node styles for pedigree and descendancy charts
+#' 
+#' This function creates node styles formatted for the DiagrammeR::mermaid() function.
+#'
+#' @param gedcom A tidyged object.
+#' @param xref The xref of the Individual or Family Group record.
+#'
+#' @return A string describing a node style to use in the DiagrammeR::mermaid() function.
+#' @tests
+#' expect_equal(node_style(tidyged::sample555, "@F1@"),
+#' "style F1 fill:lightgrey, stroke:black")
+#' expect_equal(node_style(tidyged::sample555, "@I1@"),
+#' "style I1 fill:lightblue, stroke:black")
 node_style <- function(gedcom, xref) {
   
   if (tidyged::is_indi(gedcom, xref)) {
@@ -60,6 +89,13 @@ node_style <- function(gedcom, xref) {
 }
 
 
+#' Generate a pedigree chart
+#'
+#' @param gedcom A tidyged object.
+#' @param individual An xref or character string identifying an Individual record.
+#'
+#' @return A pedigree chart showing the ancestors of the individual.
+#' @export
 pedigree_chart <- function(gedcom,
                           individual = character()) {
   
@@ -94,7 +130,13 @@ pedigree_chart <- function(gedcom,
 
 }
 
-
+#' Generate a descendancy chart
+#'
+#' @param gedcom A tidyged object.
+#' @param individual An xref or character string identifying an Individual record.
+#'
+#' @return A descendancy chart showing the descendants of the individual.
+#' @export
 descendancy_chart <- function(gedcom,
                            individual = character()) {
   
