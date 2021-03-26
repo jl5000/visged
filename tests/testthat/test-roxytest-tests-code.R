@@ -11,7 +11,7 @@ test_that("Function node_label() @ L19", {
 })
 
 
-test_that("Function node_style() @ L75", {
+test_that("Function node_style() @ L77", {
   expect_equal(node_style(tidyged::sample555, "@F1@"),
   "style F1 fill:lightgrey, stroke:black")
   expect_equal(node_style(tidyged::sample555, "@I1@"),

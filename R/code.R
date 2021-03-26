@@ -21,6 +21,8 @@ node_label <- function(gedcom, xref) {
   #I1(<b>Joe Billy Bloggs</b><br>b. 1980<br>Somewhere<br>d. 2100<br>Somewhere else)
   if (tidyged::is_indi(gedcom, xref)) {
     
+    alive <- nrow(dplyr::filter(gedcom, record == xref, level == 1, tag == "DEAT")) == 0
+    
     dob <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "BIRT") %>% 
       stringr::str_to_title()
     pob <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "BIRT")
@@ -35,7 +37,7 @@ node_label <- function(gedcom, xref) {
            "(",
            "<b>", tidyged::describe_indi(gedcom, xref, TRUE), "</b>", "<br>",
            "b. ", birth, "<br>",
-           "d. ", death,
+           ifelse(alive, " - Still living", paste0("d. ", death)),
            ")") %>% 
       stringr::str_replace_all("@", "")
     
