@@ -26,8 +26,8 @@ You can install the development version from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("jl5000/visged")
+# install.packages("remotes")
+remotes::install_github("jl5000/visged")
 ```
 
 ## Example
@@ -42,21 +42,21 @@ library(visged)
 
 sw <- gedcom() %>%
   add_indi(sex = "M", indi_notes = "The central character in the Star Wars Skywalker Saga") %>%
-  add_indi_names(given = "Anakin", surname = "Skywalker", type = "birth") %>%
-  add_indi_names(prefix = "Darth", given = "Vader", type = "given") %>%
+  add_indi_names(name_pieces(given = "Anakin", surname = "Skywalker"), type = "birth") %>%
+  add_indi_names(name_pieces(prefix = "Darth", given = "Vader"), type = "given") %>%
   add_indi(sex = "F", indi_notes = "Queen of Naboo") %>%
-  add_indi_names(given = "Padme", surname = "Amidala", type = "birth") %>% 
+  add_indi_names(name_pieces(given = "Padme", surname = "Amidala"), type = "birth") %>% 
   add_indi(sex = "F") %>% 
-  add_indi_names(given = "Leia", surname = "Skywalker", type = "birth") %>%
-  add_indi_names(prefix = "Princess", given = "Leia", surname = "Organa", type = "adoptive") %>% 
+  add_indi_names(name_pieces(given = "Leia", surname = "Skywalker"), type = "birth") %>%
+  add_indi_names(name_pieces(prefix = "Princess", given = "Leia", surname = "Organa"), type = "adoptive") %>% 
   add_indi(sex = "M") %>%
-  add_indi_names(given = "Luke", surname = "Skywalker", type = "birth") %>% 
+  add_indi_names(name_pieces(given = "Luke", surname = "Skywalker"), type = "birth") %>% 
   add_indi(sex = "M") %>% 
-  add_indi_names(given = "Obi-Wan", nickname = "Ben", surname = "Kenobi", type = "birth") %>% 
+  add_indi_names(name_pieces(given = "Obi-Wan", nickname = "Ben", surname = "Kenobi"), type = "birth") %>% 
   add_famg(husband = "Anakin", wife = "Padme", children = c("Luke", "Leia")) %>%
   activate_indi("Anakin") %>% 
-  add_indi_event_death(age_at_event = "45y", event_cause = "Killed by son Luke",
-                       place_name = "Second Death Star", place_notes = "Orbiting Endor System")
+  add_indi_fact("death", age = "45y", cause = "Killed by son Luke",
+                fact_place = place("Second Death Star", notes = "Orbiting Endor System"))
 ```
 
 ``` r
