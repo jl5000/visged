@@ -171,3 +171,26 @@ descendancy_chart <- function(gedcom,
   DiagrammeR::mermaid(paste0("graph TB;", links, ";", styles))
   
 }
+
+#' @export
+family_group_chart <- function(gedcom, family) {
+  
+  spou <- dplyr::filter(gedcom, level == 1, record == family, tag %in% c("HUSB","WIFE"))$value
+  chil <- dplyr::filter(gedcom, level == 1, record == family, tag == "CHIL")$value
+
+  links <- dplyr::bind_rows(
+    tibble::tibble(from = spou, to = family),
+    tibble::tibble(from = family, to = chil)
+  ) %>% 
+    dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
+    dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) %>% 
+    dplyr::mutate(links = paste0(from,"-->",to)) %>% 
+    dplyr::pull(links) %>% 
+    paste(collapse = "; ")
+  
+  styles <- purrr::map_chr(c(spou, chil, family), node_style, gedcom = gedcom) %>% 
+    paste(collapse = "; ")
+  
+  DiagrammeR::mermaid(paste0("graph TB;", links, ";", styles))
+  
+}

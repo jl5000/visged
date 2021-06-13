@@ -2,6 +2,7 @@
 
 export("%>%")
 export(descendancy_chart)
+export(family_group_chart)
 export(pedigree_chart)
 import(tidyged.io)
 importFrom(magrittr,"%>%")
