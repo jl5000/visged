@@ -11,12 +11,13 @@
 #' @return A string describing a node to use in the DiagrammeR::mermaid() function.
 #' @tests
 #' expect_equal(node_label(tidyged::sample555, "@I1@"),
-#' "I1(<b>Robert Eugene Williams</b><br>b. 2 Oct 1822<br>Weston, Madison, Connecticut, United States of America<br>d. 14 Apr 1905<br>Stamford, Fairfield, Connecticut, United States of America)")
+#' "I1(\"<b>Robert Eugene Williams</b><br>b. 2 Oct 1822<br>Weston, Madison, Connecticut, United States of America<br>d. 14 Apr 1905<br>Stamford, Fairfield, Connecticut, United States of America\")")
 #' expect_equal(node_label(tidyged::sample555, "@I3@"),
-#' "I3(<b>Joe Williams</b><br>b. 11 Jun 1861<br>Idaho Falls, Bonneville, Idaho, United States of America<br> - Still living)")
+#' "I3(\"<b>Joe Williams</b><br>b. 11 Jun 1861<br>Idaho Falls, Bonneville, Idaho, United States of America<br> - Still living\")")
 #' expect_equal(node_label(tidyged::sample555, "@F1@"),
-#' "F1(m. Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America)")
+#' "F1(\"m. Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America\")")
 node_label <- function(gedcom, xref) {
+  quot = '"'
   
   #I1(<b>Joe Billy Bloggs</b><br>b. 1980<br>Somewhere<br>d. 2100<br>Somewhere else)
   if (tidyged::is_indi(gedcom, xref)) {
@@ -34,11 +35,11 @@ node_label <- function(gedcom, xref) {
     death <- ifelse(dod == "" | pod == "", paste0(dod, pod), paste0(dod, "<br>", pod))
     
     paste0(xref, 
-           "(",
+           "(", "\"",
            "<b>", tidyged::describe_indi(gedcom, xref, TRUE), "</b>", "<br>",
            "b. ", birth, "<br>",
            ifelse(alive, " - Still living", paste0("d. ", death)),
-           ")") %>% 
+           "\"", ")") %>% 
       stringr::str_replace_all("@", "")
     
   } else { #family group
@@ -52,9 +53,9 @@ node_label <- function(gedcom, xref) {
     marr <- ifelse(dom == "" | pom == "", paste0(dom, pom), paste0(dom, "<br>", pom))
     
     paste0(xref, 
-           "(",
+           "(", "\"",
            ifelse(married, paste0("m. ", marr), "Relationship"),
-           ")") %>% 
+           "\"", ")") %>% 
       stringr::str_replace_all("@", "")
     
   }
@@ -172,6 +173,12 @@ descendancy_chart <- function(gedcom,
   
 }
 
+#' Generate a family group chart
+#'
+#' @param gedcom A tidyged object.
+#' @param family An xref identifying a Family group record.
+#'
+#' @return A chart showing a family group.
 #' @export
 family_group_chart <- function(gedcom, family) {
   
