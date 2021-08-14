@@ -1,6 +1,6 @@
 Package: visged
 Title: Visualise GEDCOM Files
-Version: 0.0.0.9000
+Version: 0.1.0.9000
 Authors@R: 
     person(given = "Jamie",
            family = "Lendrum",
@@ -24,6 +24,7 @@ Imports:
     tidyged,
     tidyged.internals,
     DiagrammeR,
+    timevis,
     magrittr
 Suggests: 
     testthat (>= 3.0.0),
