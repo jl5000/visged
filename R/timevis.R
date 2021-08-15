@@ -11,7 +11,7 @@
 #' @export
 timevis_indi <- function(gedcom, xref) {
 
-  unique_missing_str <- "&&GLFYSKK£"
+  unique_missing_str <- "&&GLFYSKK"
   
   facts <- gedcom %>% 
     tidyged::fact_summary_indi(xref) 
