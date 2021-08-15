@@ -27,7 +27,7 @@ timevis_indi <- function(gedcom, xref) {
     dplyr::mutate(group = ifelse(fact_type %in% names(tidyged.internals::val_attribute_types()), 
                                  "Attributes", "Events")) %>% 
     # sort out dates
-    dplyr::mutate(qualifier = ifelse(stringr::str_detect(DATE, "BET|BEF|AFT"), "uncertain", "certain"),
+    dplyr::mutate(style = ifelse(stringr::str_detect(DATE, "BET|BEF|AFT|ABT|CAL|EST"), "opacity: 0.5;", NA_character_),
                   AGE = ifelse(is.na(AGE), AGE, paste("Age:", AGE))) %>% 
     tidyr::separate(DATE, into = c("start", "end"), sep = "AND|TO", remove = FALSE, fill = "right") %>%
     dplyr::mutate(dplyr::across(c(start, end), 
@@ -66,6 +66,7 @@ timevis_indi <- function(gedcom, xref) {
     dplyr::mutate(title = paste(DATE,AGE,description,TYPE,ADR1,ADR2,ADR3,CITY,STAE,CTRY,sep="\n")) %>% 
     dplyr::mutate(title = stringr::str_remove_all(title,paste0("\n",unique_missing_str))) %>%
     dplyr::mutate(title = stringr::str_replace_all(title, "\n{2,10}", "\n")) %>%
+    # appearance
     dplyr::mutate(type = ifelse(is.na(end), "point", "range")) %>% 
     timevis::timevis(groups = tibble::tibble(id = c("Attributes", "Events"), content = id,
                                              style = "font-weight: bold;"))
