@@ -12,7 +12,7 @@
 timevis_indi <- function(gedcom, xref) {
 
   unique_missing_str <- "&&GLFYSKK£"
-    
+  
   facts <- gedcom %>% 
     tidyged::fact_summary_indi(xref) 
   
@@ -24,6 +24,8 @@ timevis_indi <- function(gedcom, xref) {
   
   facts %>% 
     dplyr::filter(!is.na(DATE)) %>% 
+    dplyr::mutate(group = ifelse(fact_type %in% names(tidyged.internals::val_attribute_types()), 
+                                 "Attributes", "Events")) %>% 
     # sort out dates
     dplyr::mutate(qualifier = ifelse(stringr::str_detect(DATE, "BET|BEF|AFT"), "uncertain", "certain"),
                   AGE = ifelse(is.na(AGE), AGE, paste("Age:", AGE))) %>% 
@@ -33,9 +35,7 @@ timevis_indi <- function(gedcom, xref) {
                                                        tidyged.internals::reg_date(only=FALSE)) %>% 
                                   unlist())) %>% 
     dplyr::mutate(start = purrr::map_chr(start, ~as.character(tidyged.internals::parse_gedcom_date(.x)))) %>%
-    dplyr::mutate(end = purrr::map_chr(end, ~ifelse(is.na(.x),
-                                                    NA_character_,
-                                                    as.character(tidyged.internals::parse_gedcom_date(.x))))) %>% 
+    dplyr::mutate(end = purrr::map_chr(end, ~as.character(tidyged.internals::parse_gedcom_date(.x)))) %>% 
     dplyr::mutate(end = ifelse(stringr::str_detect(DATE, "^TO|^BEF"), start, end), # move start to end
                   start = ifelse(stringr::str_detect(DATE, "^TO|^BEF"), dob, start),
                   end = ifelse(is.na(end) & stringr::str_detect(DATE, "^FROM|^AFT"), 
@@ -52,7 +52,7 @@ timevis_indi <- function(gedcom, xref) {
                                                                 "Emigration","Immigration","Naturalization",
                                                                 "Graduation") ~ 
                                                    dplyr::coalesce(PLAC,CITY,STAE,CTRY),
-                                                 content %in% c("Caste","Education","Physical description",
+                                                 content %in% c("Caste","Academic achievement","Physical description",
                                                                 "National ID number","Nationality",
                                                                 "Number of children","Number of relationships",
                                                                 "Occupation","Property","Religion","Nobility title") ~ 
@@ -66,7 +66,9 @@ timevis_indi <- function(gedcom, xref) {
     dplyr::mutate(title = paste(DATE,AGE,description,TYPE,ADR1,ADR2,ADR3,CITY,STAE,CTRY,sep="\n")) %>% 
     dplyr::mutate(title = stringr::str_remove_all(title,paste0("\n",unique_missing_str))) %>%
     dplyr::mutate(title = stringr::str_replace_all(title, "\n{2,10}", "\n")) %>%
-    timevis::timevis()
+    dplyr::mutate(type = ifelse(is.na(end), "point", "range")) %>% 
+    timevis::timevis(groups = tibble::tibble(id = c("Attributes", "Events"), content = id,
+                                             style = "font-weight: bold;"))
 
 }
 
