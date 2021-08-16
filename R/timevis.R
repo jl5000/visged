@@ -28,7 +28,11 @@ timevis_indi <- function(gedcom, xref) {
                                  "Attributes", "Events")) %>% 
     # sort out dates
     dplyr::mutate(style = ifelse(stringr::str_detect(DATE, "BET|BEF|AFT|ABT|CAL|EST"), "opacity: 0.5;", NA_character_),
-                  AGE = ifelse(is.na(AGE), AGE, paste("Age:", AGE))) %>% 
+                  AGE = ifelse(is.na(AGE), AGE, paste("Age:", AGE)),
+                  CAUS = ifelse(is.na(CAUS), CAUS, paste("Cause:", CAUS)),
+                  AGNC = ifelse(is.na(AGNC), AGNC, paste("With:", AGNC)),
+                  LATI = ifelse(is.na(LATI), LATI, paste("Latitude:", LATI)),
+                  LONG = ifelse(is.na(LONG), LONG, paste("Longitude:", LONG))) %>% 
     tidyr::separate(DATE, into = c("start", "end"), sep = "AND|TO", remove = FALSE, fill = "right") %>%
     dplyr::mutate(dplyr::across(c(start, end), 
                                 ~ stringr::str_extract(., 
@@ -61,9 +65,9 @@ timevis_indi <- function(gedcom, xref) {
     dplyr::mutate(content = paste0("<b>", content, "</b>")) %>% 
     dplyr::mutate(content = ifelse(!is.na(second_line), paste0(content, "<br>", second_line),content)) %>%
     # Populate hover text
-    dplyr::mutate(dplyr::across(c(DATE,AGE,description,TYPE,ADR1,ADR2,ADR3,CITY,STAE,CTRY), 
+    dplyr::mutate(dplyr::across(c(DATE,TYPE,description,AGE,CAUS,AGNC,ADR1,ADR2,ADR3,CITY,STAE,CTRY,LATI,LONG), 
                                 ~ifelse(is.na(.),unique_missing_str,.))) %>% 
-    dplyr::mutate(title = paste(DATE,AGE,description,TYPE,ADR1,ADR2,ADR3,CITY,STAE,CTRY,sep="\n")) %>% 
+    dplyr::mutate(title = paste(DATE,TYPE,description,AGE,CAUS,AGNC,ADR1,ADR2,ADR3,CITY,STAE,CTRY,LATI,LONG,sep="\n")) %>% 
     dplyr::mutate(title = stringr::str_remove_all(title,paste0("\n",unique_missing_str))) %>%
     dplyr::mutate(title = stringr::str_replace_all(title, "\n{2,10}", "\n")) %>%
     # appearance
