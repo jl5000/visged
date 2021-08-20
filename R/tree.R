@@ -184,14 +184,22 @@ family_group_chart <- function(gedcom, family) {
   
   spou <- dplyr::filter(gedcom, level == 1, record == family, tag %in% c("HUSB","WIFE"))$value
   chil <- dplyr::filter(gedcom, level == 1, record == family, tag == "CHIL")$value
+  pedi <- purrr::map_chr(chil, 
+                         ~tidyged.internals::gedcom_value( 
+                           gedcom = tidyged.internals::identify_section(gedcom,1,"FAMC",family,xrefs=.x) %>% 
+                             dplyr::slice(gedcom, .),
+                         record_xref = .x, tag = "PEDI", level = 2, after_tag = "FAMC"))
+  pedi[pedi == ""] <- "birth"
 
   links <- dplyr::bind_rows(
-    tibble::tibble(from = spou, to = family),
-    tibble::tibble(from = family, to = chil)
+    tibble::tibble(from = spou, to = family, linktype = "-->"),
+    tibble::tibble(from = family, to = chil, linktype = ifelse(pedi == "birth",
+                                                               "-->",
+                                                               paste0("-. ", pedi, " .->")))
   ) %>% 
     dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
     dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) %>% 
-    dplyr::mutate(links = paste0(from,"-->",to)) %>% 
+    dplyr::mutate(links = paste0(from,linktype,to)) %>% 
     dplyr::pull(links) %>% 
     paste(collapse = "; ")
   
