@@ -3,7 +3,7 @@ timevis_data_indi <- function(gedcom, xref) {
   
   xref_indi <- xref
   
-  facts <- tidyged::fact_summary_indi(gedcom, xref) %>% 
+  facts <- tidyged::df_indi_facts(gedcom, xref) %>% 
     dplyr::mutate(xref = xref_indi)
   
   facts_fams <- get_facts_fams(gedcom, xref)
@@ -120,7 +120,7 @@ get_facts_fams <- function(gedcom, xref) {
   
   if(length(fams) == 0) return(tibble::tibble())
   
-  facts_fams <- purrr::map_dfr(fams, tidyged::fact_summary_famg, gedcom = gedcom, .id = "xref_fams")
+  facts_fams <- purrr::map_dfr(fams, tidyged::df_famg_facts, gedcom = gedcom, .id = "xref_fams")
   
   if(nrow(facts_fams) == 0) return(tibble::tibble())
   
