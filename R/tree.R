@@ -44,17 +44,27 @@ node_label <- function(gedcom, xref) {
     
   } else { #family group
     
-    married <- nrow(dplyr::filter(gedcom, record == xref, tag == "MARR")) > 0
+    relship <- nrow(dplyr::filter(gedcom, record == xref, tag == "MARR")) > 0
+    married <- nrow(dplyr::filter(gedcom, record == xref, tag == "TYPE", 
+                                  value %in% c("marriage","civil","religious","common law"))) > 0
+    if(married){
+      rel = "Married"
+    } else if (relship) {
+      rel = "Relationship"
+    } else {
+      rel = "Unknown"
+    }
     
     dom <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "MARR") %>% 
       stringr::str_to_title()
     pom <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "MARR")
     
-    marr <- ifelse(dom == "" | pom == "", paste0(dom, pom), paste0(dom, "<br>", pom))
+    details <- ifelse(dom == "" | pom == "", paste0(dom, pom), paste0(dom, "<br>", pom))
     
     paste0(xref, 
            "(", "\"",
-           ifelse(married, paste0("m. ", marr), "Relationship"),
+           "<b>", rel, "</b>", "<br>",
+           details,
            "\"", ")") %>% 
       stringr::str_replace_all("@", "")
     
@@ -193,9 +203,9 @@ family_group_chart <- function(gedcom, family) {
 
   links <- dplyr::bind_rows(
     tibble::tibble(from = spou, to = family, linktype = "-->"),
-    tibble::tibble(from = family, to = chil, linktype = ifelse(pedi == "birth",
-                                                               "-->",
-                                                               paste0("-. ", pedi, " .->")))
+    tibble::tibble(from = family, to = chil, linktype = as.character(ifelse(pedi == "birth",
+                                                                            "-->",
+                                                                            paste0("-. ", pedi, " .->"))))
   ) %>% 
     dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
     dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) %>% 
