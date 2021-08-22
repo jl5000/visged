@@ -15,7 +15,7 @@
 #' expect_equal(node_label(tidyged::sample555, "@I3@"),
 #' "I3(\"<b>Joe Williams</b><br>b. 11 Jun 1861<br>Idaho Falls, Bonneville, Idaho, United States of America<br> - Still living\")")
 #' expect_equal(node_label(tidyged::sample555, "@F1@"),
-#' "F1(\"m. Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America\")")
+#' "F1(\"<b>Relationship</b><br>Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America\")")
 node_label <- function(gedcom, xref) {
   quot = '"'
   

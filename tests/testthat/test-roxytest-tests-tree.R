@@ -8,11 +8,11 @@ test_that("Function node_label() @ L19", {
   expect_equal(node_label(tidyged::sample555, "@I3@"),
   "I3(\"<b>Joe Williams</b><br>b. 11 Jun 1861<br>Idaho Falls, Bonneville, Idaho, United States of America<br> - Still living\")")
   expect_equal(node_label(tidyged::sample555, "@F1@"),
-  "F1(\"m. Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America\")")
+  "F1(\"<b>Relationship</b><br>Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America\")")
 })
 
 
-test_that("Function node_style() @ L78", {
+test_that("Function node_style() @ L88", {
   expect_equal(node_style(tidyged::sample555, "@F1@"),
   "style F1 fill:lightgrey, stroke:black")
   expect_equal(node_style(tidyged::sample555, "@I1@"),
