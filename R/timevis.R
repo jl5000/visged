@@ -70,17 +70,17 @@ create_box_text <- function(facts, gedcom) {
     dplyr::mutate(xref_names = purrr::map_chr(xref, tidyged::describe_indi,
                                               gedcom=gedcom, name_only = TRUE)) %>%
     dplyr::mutate(content = fact_type) %>% 
-    dplyr::mutate(content = ifelse(stringr::str_detect(content, "^Other"), description, content),
-                  description = ifelse(content == description, "", description)) %>%
-    dplyr::mutate(dplyr::across(dplyr::everything(), ~ifelse(is.na(.),NA_character_,.))) %>% # fix for case_when
+    dplyr::mutate(content = dplyr::if_else(stringr::str_detect(content, "^Other"), description, content),
+                  description = dplyr::if_else(content == description, "", description)) %>%
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~dplyr::if_else(is.na(.),NA_character_,.))) %>% # fix for case_when
     dplyr::mutate(second_line = dplyr::case_when(content %in% facts_with_place ~ dplyr::coalesce(PLAC,CITY,STAE,CTRY),
                                                  content %in% facts_needing_description ~ description,
                                                  content %in% facts_with_spouse ~ xref_names,
                                                  TRUE ~ TYPE)) %>%
-    dplyr::mutate(content = ifelse(content == "Relationship" & !is.na(TYPE), 
-                                   paste0(content, " (", TYPE, ")"), content)) %>% 
+    dplyr::mutate(content = dplyr::if_else(content == "Relationship" & !is.na(TYPE), 
+                                           paste0(content, " (", TYPE, ")"), content)) %>% 
     dplyr::mutate(content = paste0("<b>", content, "</b>")) %>% 
-    dplyr::mutate(content = ifelse(!is.na(second_line), paste0(content, "<br>", second_line),content))
+    dplyr::mutate(content = dplyr::if_else(!is.na(second_line), paste0(content, "<br>", second_line),content))
   
 }
 
@@ -90,14 +90,14 @@ create_hover_text <- function(facts) {
   unique_missing_str <- "&&GLFYSKK"
   
   facts %>% 
-    dplyr::mutate(AGE = ifelse(is.na(AGE), AGE, paste("Age:", AGE)), 
-                  CAUS = ifelse(is.na(CAUS), CAUS, paste("Cause:", CAUS)),
-                  AGNC = ifelse(is.na(AGNC), AGNC, paste("With:", AGNC)),
-                  LATI = ifelse(is.na(LATI), LATI, paste("Latitude:", LATI)),
-                  LONG = ifelse(is.na(LONG), LONG, paste("Longitude:", LONG))) %>% 
-    dplyr::mutate(description = ifelse(description == "Y", NA_character_, description)) %>% 
+    dplyr::mutate(AGE = dplyr::if_else(is.na(AGE), AGE, paste("Age:", AGE)), 
+                  CAUS = dplyr::if_else(is.na(CAUS), CAUS, paste("Cause:", CAUS)),
+                  AGNC = dplyr::if_else(is.na(AGNC), AGNC, paste("With:", AGNC)),
+                  LATI = dplyr::if_else(is.na(LATI), LATI, paste("Latitude:", LATI)),
+                  LONG = dplyr::if_else(is.na(LONG), LONG, paste("Longitude:", LONG))) %>% 
+    dplyr::mutate(description = dplyr::if_else(description == "Y", NA_character_, description)) %>% 
     dplyr::mutate(dplyr::across(c(DATE,TYPE,description,AGE,CAUS,AGNC,ADR1,ADR2,ADR3,CITY,STAE,CTRY,LATI,LONG),
-                                ~ifelse(is.na(.),unique_missing_str,.))) %>% 
+                                ~dplyr::if_else(is.na(.),unique_missing_str,.))) %>% 
     dplyr::mutate(title = paste(DATE,TYPE,description,AGE,CAUS,AGNC,ADR1,ADR2,ADR3,CITY,STAE,CTRY,LATI,LONG,sep="\n")) %>% 
     dplyr::mutate(title = stringr::str_remove_all(title,paste0("\n",unique_missing_str))) %>%
     dplyr::mutate(title = stringr::str_replace_all(title, "\n{2,10}", "\n"))
@@ -107,10 +107,10 @@ create_hover_text <- function(facts) {
 create_box_appearance <- function(facts) {
   
   facts %>% 
-    dplyr::mutate(type = ifelse(is.na(end), "point", "range"),
-                  style = ifelse(stringr::str_detect(DATE, "BET|BEF|AFT|ABT|CAL|EST"), 
-                                 "opacity: 0.5;", 
-                                 NA_character_))
+    dplyr::mutate(type = dplyr::if_else(is.na(end), "point", "range"),
+                  style = dplyr::if_else(stringr::str_detect(DATE, "BET|BEF|AFT|ABT|CAL|EST"), 
+                                         "opacity: 0.5;", 
+                                         NA_character_))
 }
 
 get_facts_fams <- function(gedcom, xref) {
@@ -127,11 +127,11 @@ get_facts_fams <- function(gedcom, xref) {
   facts_fams %>% 
     dplyr::mutate(role = purrr::map_chr(xref_fams,
                                         ~ dplyr::filter(gedcom, record == .x, value == xref)$tag), #role of this indi
-                  AGE = ifelse(role == "HUSB", HUSB.AGE, WIFE.AGE), #age of this indi
+                  AGE = dplyr::if_else(role == "HUSB", HUSB.AGE, WIFE.AGE), #age of this indi
                   xref = purrr::map2_chr(role, xref_fams, #xref of spouse
-                                         ~ifelse(.x == "HUSB",
-                                                 tidyged.internals::gedcom_value(gedcom, .y, "WIFE", 1),
-                                                 tidyged.internals::gedcom_value(gedcom, .y, "HUSB", 1)))) %>% 
+                                         ~dplyr::if_else(.x == "HUSB",
+                                                         tidyged.internals::gedcom_value(gedcom, .y, "WIFE", 1),
+                                                         tidyged.internals::gedcom_value(gedcom, .y, "HUSB", 1)))) %>% 
     dplyr::select(-xref_fams, -role, -HUSB.AGE, -WIFE.AGE)
 }
 

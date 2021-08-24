@@ -31,14 +31,15 @@ node_label <- function(gedcom, xref) {
       stringr::str_to_title()
     pod <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "DEAT")
     
-    birth <- ifelse(dob == "" | pob == "", paste0(dob, pob), paste0(dob, "<br>", pob))
-    death <- ifelse(dod == "" | pod == "", paste0(dod, pod), paste0(dod, "<br>", pod))
+    if(dob == "" | pob == "") birth <- paste0(dob, pob) else birth <- paste0(dob, "<br>", pob)
+    if(dod == "" | pod == "") death <- paste0(dod, pod) else death <- paste0(dod, "<br>", pod)
+    if(alive) death_str <- " - Still living" else death_str <- paste0("d. ", death)
     
     paste0(xref, 
            "(", "\"",
            "<b>", tidyged::describe_indi(gedcom, xref, TRUE), "</b>", "<br>",
            "b. ", birth, "<br>",
-           ifelse(alive, " - Still living", paste0("d. ", death)),
+           death_str,
            "\"", ")") %>% 
       stringr::str_replace_all("@", "")
     
@@ -59,7 +60,7 @@ node_label <- function(gedcom, xref) {
       stringr::str_to_title()
     pom <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "MARR")
     
-    details <- ifelse(dom == "" | pom == "", paste0(dom, pom), paste0(dom, "<br>", pom))
+    if(dom == "" | pom == "") details <- paste0(dom, pom) else details <- paste0(dom, "<br>", pom)
     
     paste0(xref, 
            "(", "\"",
@@ -91,7 +92,7 @@ node_style <- function(gedcom, xref) {
     
     gender <- tidyged.internals::gedcom_value(gedcom, xref, "SEX", 1)
     
-    style <- paste0("style ", xref, " fill:", ifelse(gender == "M", "lightblue", "pink"), ", stroke:black")
+    style <- paste0("style ", xref, " fill:", dplyr::if_else(gender == "M", "lightblue", "pink"), ", stroke:black")
     
   } else {
     
@@ -203,9 +204,9 @@ family_group_chart <- function(gedcom, family) {
 
   links <- dplyr::bind_rows(
     tibble::tibble(from = spou, to = family, linktype = "-->"),
-    tibble::tibble(from = family, to = chil, linktype = as.character(ifelse(pedi == "birth",
-                                                                            "-->",
-                                                                            paste0("-. ", pedi, " .->"))))
+    tibble::tibble(from = family, to = chil, linktype = as.character(dplyr::if_else(pedi == "birth",
+                                                                                    "-->",
+                                                                                    paste0("-. ", pedi, " .->"))))
   ) %>% 
     dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
     dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) %>% 
