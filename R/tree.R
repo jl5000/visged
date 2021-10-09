@@ -122,7 +122,7 @@ pedigree_chart <- function(gedcom,
   
   # get the parents / spouses of all these records
   get_spouses <- function(gedcom, fams) {
-    dplyr::filter(gedcom, record == fams, tag %in% c("HUSB","WIFE"))$value
+    dplyr::filter(gedcom, record == fams, level == 1, tag %in% c("HUSB","WIFE"))$value
   }
   
   links <- tibble::tibble(to = xrefs) %>% 

@@ -127,12 +127,12 @@ get_facts_fams <- function(gedcom, xref) {
   facts_fams %>% 
     dplyr::mutate(role = purrr::map_chr(xref_fams,
                                         ~ dplyr::filter(gedcom, record == .x, value == xref)$tag), #role of this indi
-                  AGE = dplyr::if_else(role == "HUSB", HUSB.AGE, WIFE.AGE), #age of this indi
+                  AGE = dplyr::if_else(role == "HUSB", HUSB_AGE, WIFE_AGE), #age of this indi
                   xref = purrr::map2_chr(role, xref_fams, #xref of spouse
                                          ~dplyr::if_else(.x == "HUSB",
                                                          tidyged.internals::gedcom_value(gedcom, .y, "WIFE", 1),
                                                          tidyged.internals::gedcom_value(gedcom, .y, "HUSB", 1)))) %>% 
-    dplyr::select(-xref_fams, -role, -HUSB.AGE, -WIFE.AGE)
+    dplyr::select(-xref_fams, -role, -HUSB_AGE, -WIFE_AGE)
 }
 
 #' Construct a fact timeline for one or more individuals
