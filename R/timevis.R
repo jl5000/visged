@@ -149,7 +149,10 @@ timevis_indi <- function(gedcom, xrefs) {
   timevis_data <- unique(xrefs) %>% 
     purrr::set_names(.) %>%
     purrr::map_dfr(timevis_data_indi, gedcom = gedcom) %>%
-    dplyr::mutate(group = purrr::map_chr(xref, tidyged::describe_indi, gedcom = gedcom, name_only = TRUE)) 
+    dplyr::mutate(group = purrr::map_chr(xref, tidyged::describe_indi, gedcom = gedcom, name_only = TRUE))
+  
+  if(length(unique(timevis_data$xref)) != length(unique(timevis_data$group)))
+    timevis_data <- dplyr::mutate(timevis_data, group = paste0(group, " (", xref, ")"))
   
   timevis_groups <- tibble::tibble(id = unique(timevis_data$group), content = id, style = "font-weight: bold;")
 
