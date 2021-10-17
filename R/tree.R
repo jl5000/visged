@@ -15,7 +15,7 @@
 #' expect_equal(node_label(tidyged::sample555, "@I3@"),
 #' "I3(\"<b>Joe Williams</b><br>b. 11 Jun 1861<br>Idaho Falls, Bonneville, Idaho, United States of America<br> - Still living\")")
 #' expect_equal(node_label(tidyged::sample555, "@F1@"),
-#' "F1(\"<b>Relationship</b><br>Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America\")")
+#' "F1(\"<b>Married</b><br>Dec 1859<br>Rapid City, Pennington, South Dakota, United States of America\")")
 node_label <- function(gedcom, xref) {
   quot = '"'
   
@@ -45,22 +45,61 @@ node_label <- function(gedcom, xref) {
     
   } else { #family group
     
+    gedcom <- tidyged::insert_explicit_marr_types(gedcom, xref)
+    
+    eng <- nrow(dplyr::filter(gedcom, record == xref, tag == "ENGA")) > 0
+    div <- nrow(dplyr::filter(gedcom, record == xref, tag %in% c("DIV","DIVF"))) > 0
     relship <- nrow(dplyr::filter(gedcom, record == xref, tag == "MARR")) > 0
     married <- nrow(dplyr::filter(gedcom, record == xref, tag == "TYPE", 
                                   value %in% c("marriage","civil","religious","common law"))) > 0
-    if(married){
-      rel = "Married"
+    
+    dor <- por <- ""
+    
+    if(div){
+      rel <- "Divorced"
+      dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "DIV")
+      if(dor == "") dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "DIVF")
+      dor <- stringr::str_to_title(dor)
+    } else if(married){
+      rel <- "Married"
+      marr_rows <- tidyged.internals::identify_section(gedcom, 1, "MARR", xrefs = xref)
+      marr_secs <- gedcom %>% 
+        dplyr::slice(marr_rows) %>% 
+        dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) %>% 
+        dplyr::mutate(marr = tag == "MARR",
+                      marr_no = cumsum(marr))
+      for(i in seq_len(max(marr_secs$marr_no))){
+        sec <- dplyr::filter(marr_secs, marr_no == i)
+        if(nrow(dplyr::filter(sec, tag == "TYPE", value %in% c("marriage","civil","religious","common law")))>0)
+          break
+      }
+      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
+        stringr::str_to_title()
+      por <- tidyged.internals::gedcom_value(sec, xref, "PLAC", 2, "MARR")
+    } else if(eng){
+      rel <- "Engaged"
+      dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "ENGA") %>% 
+        stringr::str_to_title()
     } else if (relship) {
-      rel = "Relationship"
+      rel <- "Relationship"
+      marr_rows <- tidyged.internals::identify_section(gedcom, 1, "MARR", xrefs = xref)
+      marr_secs <- gedcom %>% 
+        dplyr::slice(marr_rows) %>% 
+        dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) %>% 
+        dplyr::mutate(marr = tag == "MARR",
+                      marr_no = cumsum(marr))
+      for(i in seq_len(max(marr_secs$marr_no))){
+        sec <- dplyr::filter(marr_secs, marr_no == i)
+        if(nrow(dplyr::filter(sec, tag == "TYPE", value %in% c("marriage","civil","religious","common law")))==0)
+          break
+      }
+      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
+        stringr::str_to_title()
     } else {
-      rel = "Unknown"
+      rel <- "Unknown"
     }
     
-    dom <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "MARR") %>% 
-      stringr::str_to_title()
-    pom <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "MARR")
-    
-    if(dom == "" | pom == "") details <- paste0(dom, pom) else details <- paste0(dom, "<br>", pom)
+    if(dor == "" | por == "") details <- paste0(dor, por) else details <- paste0(dor, "<br>", por)
     
     paste0(xref, 
            "(", "\"",

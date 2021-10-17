@@ -1,6 +1,6 @@
 Package: visged
 Title: Visualise GEDCOM Files
-Version: 0.3.5.9000
+Version: 0.3.6.9000
 Authors@R: 
     person(given = "Jamie",
            family = "Lendrum",
@@ -12,7 +12,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE, roclets = c("namespace", "rd", "roxytest::testthat_roclet"))
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Depends:
     tidyged.io
 Imports: 
