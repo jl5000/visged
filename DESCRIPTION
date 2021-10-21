@@ -1,6 +1,6 @@
 Package: visged
 Title: Visualise GEDCOM Files
-Version: 0.3.7.9000
+Version: 0.3.6.9000
 Authors@R: 
     person(given = "Jamie",
            family = "Lendrum",
@@ -23,7 +23,6 @@ Imports:
     stringr,
     tidyged,
     tidyged.internals,
-    queryged,
     DiagrammeR,
     timevis,
     magrittr
@@ -33,6 +32,5 @@ Suggests:
 Remotes: 
     jl5000/tidyged,
     jl5000/tidyged.internals,
-    jl5000/tidyged.io,
-    jl5000/queryged
+    jl5000/tidyged.io
 Config/testthat/edition: 3

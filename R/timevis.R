@@ -67,7 +67,8 @@ create_box_text <- function(facts, gedcom) {
                          "Marriage settlement","Relationship")
   
   facts %>% 
-    dplyr::mutate(xref_names = purrr::map_chr(xref, queryged::indi_name, gedcom=gedcom)) %>%
+    dplyr::mutate(xref_names = purrr::map_chr(xref, tidyged::describe_indi,
+                                              gedcom=gedcom, name_only = TRUE)) %>%
     dplyr::mutate(content = fact_type) %>% 
     dplyr::mutate(content = dplyr::if_else(stringr::str_detect(content, "^Other"), description, content),
                   description = dplyr::if_else(content == description, "", description)) %>%
@@ -114,7 +115,7 @@ create_box_appearance <- function(facts) {
 
 get_facts_fams <- function(gedcom, xref) {
   
-  fams <- queryged::get_families_as_spouse(gedcom, xref) %>% 
+  fams <- tidyged::get_families_as_spouse(gedcom, xref) %>% 
     purrr::set_names(.)
   
   if(length(fams) == 0) return(tibble::tibble())
@@ -129,8 +130,8 @@ get_facts_fams <- function(gedcom, xref) {
                   AGE = dplyr::if_else(role == "HUSB", HUSB_AGE, WIFE_AGE), #age of this indi
                   xref = purrr::map2_chr(role, xref_fams, #xref of spouse
                                          ~dplyr::if_else(.x == "HUSB",
-                                                         queryged::gedcom_value(gedcom, .y, "WIFE", 1),
-                                                         queryged::gedcom_value(gedcom, .y, "HUSB", 1)))) %>% 
+                                                         tidyged.internals::gedcom_value(gedcom, .y, "WIFE", 1),
+                                                         tidyged.internals::gedcom_value(gedcom, .y, "HUSB", 1)))) %>% 
     dplyr::select(-xref_fams, -role, -HUSB_AGE, -WIFE_AGE)
 }
 
@@ -148,7 +149,7 @@ timevis_indi <- function(gedcom, xrefs) {
   timevis_data <- unique(xrefs) %>% 
     purrr::set_names(.) %>%
     purrr::map_dfr(timevis_data_indi, gedcom = gedcom) %>%
-    dplyr::mutate(group = purrr::map_chr(xref, queryged::indi_name, gedcom = gedcom))
+    dplyr::mutate(group = purrr::map_chr(xref, tidyged::describe_indi, gedcom = gedcom, name_only = TRUE))
   
   if(length(unique(timevis_data$xref)) != length(unique(timevis_data$group)))
     timevis_data <- dplyr::mutate(timevis_data, group = paste0(group, " (", xref, ")"))
