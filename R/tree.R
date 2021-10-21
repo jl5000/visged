@@ -24,12 +24,12 @@ node_label <- function(gedcom, xref) {
     
     alive <- nrow(dplyr::filter(gedcom, record == xref, level == 1, tag == "DEAT")) == 0
     
-    dob <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "BIRT") %>% 
+    dob <- queryged::gedcom_value(gedcom, xref, "DATE", 2, "BIRT") %>% 
       stringr::str_to_title()
-    pob <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "BIRT")
-    dod <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "DEAT") %>% 
+    pob <- queryged::gedcom_value(gedcom, xref, "PLAC", 2, "BIRT")
+    dod <- queryged::gedcom_value(gedcom, xref, "DATE", 2, "DEAT") %>% 
       stringr::str_to_title()
-    pod <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "DEAT")
+    pod <- queryged::gedcom_value(gedcom, xref, "PLAC", 2, "DEAT")
     
     if(dob == "" | pob == "") birth <- paste0(dob, pob) else birth <- paste0(dob, "<br>", pob)
     if(dod == "" | pod == "") death <- paste0(dod, pod) else death <- paste0(dod, "<br>", pod)
@@ -37,7 +37,7 @@ node_label <- function(gedcom, xref) {
     
     paste0(xref, 
            "(", "\"",
-           "<b>", tidyged::describe_indi(gedcom, xref, TRUE), "</b>", "<br>",
+           "<b>", queryged::indi_name(gedcom, xref), "</b>", "<br>",
            "b. ", birth, "<br>",
            death_str,
            "\"", ")") %>% 
@@ -57,12 +57,12 @@ node_label <- function(gedcom, xref) {
     
     if(div){
       rel <- "Divorced"
-      dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "DIV")
-      if(dor == "") dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "DIVF")
+      dor <- queryged::gedcom_value(gedcom, xref, "DATE", 2, "DIV")
+      if(dor == "") dor <- queryged::gedcom_value(gedcom, xref, "DATE", 2, "DIVF")
       dor <- stringr::str_to_title(dor)
     } else if(married){
       rel <- "Married"
-      marr_rows <- tidyged.internals::identify_section(gedcom, 1, "MARR", xrefs = xref)
+      marr_rows <- queryged::identify_section(gedcom, 1, "MARR", xrefs = xref)
       marr_secs <- gedcom %>% 
         dplyr::slice(marr_rows) %>% 
         dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) %>% 
@@ -73,16 +73,16 @@ node_label <- function(gedcom, xref) {
         if(nrow(dplyr::filter(sec, tag == "TYPE", value %in% c("marriage","civil","religious","common law")))>0)
           break
       }
-      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
+      dor <- queryged::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
         stringr::str_to_title()
-      por <- tidyged.internals::gedcom_value(sec, xref, "PLAC", 2, "MARR")
+      por <- queryged::gedcom_value(sec, xref, "PLAC", 2, "MARR")
     } else if(eng){
       rel <- "Engaged"
-      dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "ENGA") %>% 
+      dor <- queryged::gedcom_value(gedcom, xref, "DATE", 2, "ENGA") %>% 
         stringr::str_to_title()
     } else if (relship) {
       rel <- "Relationship"
-      marr_rows <- tidyged.internals::identify_section(gedcom, 1, "MARR", xrefs = xref)
+      marr_rows <- queryged::identify_section(gedcom, 1, "MARR", xrefs = xref)
       marr_secs <- gedcom %>% 
         dplyr::slice(marr_rows) %>% 
         dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) %>% 
@@ -93,7 +93,7 @@ node_label <- function(gedcom, xref) {
         if(nrow(dplyr::filter(sec, tag == "TYPE", value %in% c("marriage","civil","religious","common law")))==0)
           break
       }
-      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
+      dor <- queryged::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
         stringr::str_to_title()
     } else {
       rel <- "Unknown"
@@ -129,7 +129,7 @@ node_style <- function(gedcom, xref) {
   
   if (tidyged::is_indi(gedcom, xref)) {
     
-    gender <- tidyged.internals::gedcom_value(gedcom, xref, "SEX", 1)
+    gender <- queryged::gedcom_value(gedcom, xref, "SEX", 1)
     
     style <- paste0("style ", xref, " fill:", dplyr::if_else(gender == "M", "lightblue", "pink"), ", stroke:black")
     
@@ -152,7 +152,7 @@ node_style <- function(gedcom, xref) {
 pedigree_chart <- function(gedcom,
                           individual = character()) {
   
-  xrefs <- tidyged::get_ancestors(gedcom, individual, 
+  xrefs <- queryged::get_ancestors(gedcom, individual, 
                                   include_individual = TRUE, 
                                   include_siblings = FALSE,
                                   include_families = TRUE, 
@@ -166,7 +166,7 @@ pedigree_chart <- function(gedcom,
   
   links <- tibble::tibble(to = xrefs) %>% 
     dplyr::mutate(from = purrr::map_if(to, ~ tidyged::is_indi(gedcom, .x),
-                                               ~  tidyged::get_families_as_child(gedcom, .x),
+                                               ~  queryged::get_families_as_child(gedcom, .x),
                                                .else = ~  get_spouses(gedcom, .x))) %>% 
     tidyr::unnest(from) %>% 
     dplyr::filter(from != "") %>% 
@@ -193,7 +193,7 @@ pedigree_chart <- function(gedcom,
 descendancy_chart <- function(gedcom,
                            individual = character()) {
   
-  xrefs <- tidyged::get_descendants(gedcom, individual, 
+  xrefs <- queryged::get_descendants(gedcom, individual, 
                                   include_individual = TRUE, 
                                   include_spouses = FALSE,
                                   include_families = TRUE, 
@@ -206,7 +206,7 @@ descendancy_chart <- function(gedcom,
   
   links <- tibble::tibble(from = xrefs) %>% 
     dplyr::mutate(to = purrr::map_if(from, ~ tidyged::is_indi(gedcom, .x),
-                                       ~  tidyged::get_families_as_spouse(gedcom, .x),
+                                       ~  queryged::get_families_as_spouse(gedcom, .x),
                                        .else = ~ get_children(gedcom, .x))) %>% 
     tidyr::unnest(to) %>% 
     #dplyr::filter(from != "") %>% 
@@ -235,8 +235,8 @@ family_group_chart <- function(gedcom, family) {
   spou <- dplyr::filter(gedcom, level == 1, record == family, tag %in% c("HUSB","WIFE"))$value
   chil <- dplyr::filter(gedcom, level == 1, record == family, tag == "CHIL")$value
   pedi <- purrr::map_chr(chil, 
-                         ~tidyged.internals::gedcom_value( 
-                           gedcom = tidyged.internals::identify_section(gedcom,1,"FAMC",family,xrefs=.x) %>% 
+                         ~queryged::gedcom_value( 
+                           gedcom = queryged::identify_section(gedcom,1,"FAMC",family,xrefs=.x) %>% 
                              dplyr::slice(gedcom, .),
                          record_xref = .x, tag = "PEDI", level = 2, after_tag = "FAMC"))
   pedi[pedi == ""] <- "birth"
