@@ -145,18 +145,19 @@ node_style <- function(gedcom, xref) {
 #' Generate a pedigree chart
 #'
 #' @param gedcom A tidyged object.
-#' @param individual An xref or character string identifying an Individual record.
+#' @param indi_xref The xref of an Individual record to act on if one 
+#' is not activated (will override active record).
 #'
 #' @return A pedigree chart showing the ancestors of the individual.
 #' @export
 pedigree_chart <- function(gedcom,
-                          individual = character()) {
+                           indi_xref = character()) {
   
-  xrefs <- tidyged::get_ancestors(gedcom, individual, 
-                                  include_individual = TRUE, 
-                                  include_siblings = FALSE,
-                                  include_families = TRUE, 
-                                  include_supp_records = FALSE)
+  xrefs <- tidyged::get_ancestors(gedcom, indi_xref, 
+                                  inc_indi = TRUE, 
+                                  inc_sibs = FALSE,
+                                  inc_famg = TRUE, 
+                                  inc_supp = FALSE)
   
   
   # get the parents / spouses of all these records
@@ -186,18 +187,19 @@ pedigree_chart <- function(gedcom,
 #' Generate a descendancy chart
 #'
 #' @param gedcom A tidyged object.
-#' @param individual An xref or character string identifying an Individual record.
+#' @param indi_xref The xref of an Individual record to act on if one 
+#' is not activated (will override active record).
 #'
 #' @return A descendancy chart showing the descendants of the individual.
 #' @export
 descendancy_chart <- function(gedcom,
-                           individual = character()) {
+                              indi_xref = character()) {
   
-  xrefs <- tidyged::get_descendants(gedcom, individual, 
-                                  include_individual = TRUE, 
-                                  include_spouses = FALSE,
-                                  include_families = TRUE, 
-                                  include_supp_records = FALSE)
+  xrefs <- tidyged::get_descendants(gedcom, indi_xref, 
+                                    inc_indi = TRUE, 
+                                    inc_spou = FALSE,
+                                    inc_famg = TRUE, 
+                                    inc_supp = FALSE)
   
   # get the marriages / children of all these records
   get_children <- function(gedcom, famc) {

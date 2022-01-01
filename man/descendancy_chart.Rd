@@ -4,12 +4,13 @@
 \alias{descendancy_chart}
 \title{Generate a descendancy chart}
 \usage{
-descendancy_chart(gedcom, individual = character())
+descendancy_chart(gedcom, indi_xref = character())
 }
 \arguments{
 \item{gedcom}{A tidyged object.}
 
-\item{individual}{An xref or character string identifying an Individual record.}
+\item{indi_xref}{The xref of an Individual record to act on if one
+is not activated (will override active record).}
 }
 \value{
 A descendancy chart showing the descendants of the individual.

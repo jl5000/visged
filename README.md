@@ -53,20 +53,22 @@ sw <- gedcom() %>%
   add_indi_names(name_pieces(given = "Luke", surname = "Skywalker"), type = "birth") %>% 
   add_indi(sex = "M") %>% 
   add_indi_names(name_pieces(given = "Obi-Wan", nickname = "Ben", surname = "Kenobi"), type = "birth") %>% 
-  add_famg(husband = "Anakin", wife = "Padme", children = c("Luke", "Leia")) %>%
-  activate_indi("Anakin") %>% 
+  add_famg(husband = find_indi_name(., "Anakin"), 
+           wife = find_indi_name(., "Padme"), 
+           children = c(find_indi_name(. ,"Luke"), find_indi_name(., "Leia"))) %>%
+  activate_indi(find_indi_name(., "Anakin")) %>% 
   add_indi_fact("death", age = "45y", cause = "Killed by son Luke",
                 fact_place = place("Second Death Star", notes = "Orbiting Endor System"))
 ```
 
 ``` r
-pedigree_chart(sw, "Luke")
+pedigree_chart(sw, find_indi_name(sw, "Luke"))
 ```
 
 <img src="man/figures/luke_pedigree.png" width="50%" style="display: block; margin: auto;" />
 
 ``` r
-descendancy_chart(sw, "Anakin")
+descendancy_chart(sw, find_indi_name(sw, "Anakin"))
 ```
 
 <img src="man/figures/anakin_descendancy.png" width="50%" style="display: block; margin: auto;" />

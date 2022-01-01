@@ -4,12 +4,13 @@
 \alias{pedigree_chart}
 \title{Generate a pedigree chart}
 \usage{
-pedigree_chart(gedcom, individual = character())
+pedigree_chart(gedcom, indi_xref = character())
 }
 \arguments{
 \item{gedcom}{A tidyged object.}
 
-\item{individual}{An xref or character string identifying an Individual record.}
+\item{indi_xref}{The xref of an Individual record to act on if one
+is not activated (will override active record).}
 }
 \value{
 A pedigree chart showing the ancestors of the individual.
