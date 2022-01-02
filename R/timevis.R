@@ -115,7 +115,7 @@ create_box_appearance <- function(facts) {
 
 get_facts_fams <- function(gedcom, xref) {
   
-  fams <- tidyged::get_families_as_spouse(gedcom, xref) %>% 
+  fams <- tidyged::get_families_as_partner(gedcom, xref) %>% 
     purrr::set_names(.)
   
   if(length(fams) == 0) return(tibble::tibble())

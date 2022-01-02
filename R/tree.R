@@ -197,7 +197,7 @@ descendancy_chart <- function(gedcom,
   
   xrefs <- tidyged::get_descendants(gedcom, indi_xref, 
                                     inc_indi = TRUE, 
-                                    inc_spou = FALSE,
+                                    inc_part = FALSE,
                                     inc_famg = TRUE, 
                                     inc_supp = FALSE)
   
@@ -208,7 +208,7 @@ descendancy_chart <- function(gedcom,
   
   links <- tibble::tibble(from = xrefs) %>% 
     dplyr::mutate(to = purrr::map_if(from, ~ tidyged::is_indi(gedcom, .x),
-                                       ~  tidyged::get_families_as_spouse(gedcom, .x),
+                                       ~  tidyged::get_families_as_partner(gedcom, .x),
                                        .else = ~ get_children(gedcom, .x))) %>% 
     tidyr::unnest(to) %>% 
     #dplyr::filter(from != "") %>% 
