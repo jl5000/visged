@@ -4,12 +4,14 @@
 \alias{family_group_chart}
 \title{Generate a family group chart}
 \usage{
-family_group_chart(gedcom, family)
+family_group_chart(gedcom, family, birth_only = FALSE)
 }
 \arguments{
 \item{gedcom}{A tidyged object.}
 
 \item{family}{An xref identifying a Family group record.}
+
+\item{birth_only}{Whether to only show biological children.}
 }
 \value{
 A chart showing a family group.

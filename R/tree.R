@@ -159,16 +159,10 @@ pedigree_chart <- function(gedcom,
                                   inc_famg = TRUE, 
                                   inc_supp = FALSE)
   
-  
-  # get the parents / spouses of all these records
-  get_spouses <- function(gedcom, fams) {
-    dplyr::filter(gedcom, record == fams, level == 1, tag %in% c("HUSB","WIFE"))$value
-  }
-  
   links <- tibble::tibble(to = xrefs) %>% 
     dplyr::mutate(from = purrr::map_if(to, ~ tidyged::is_indi(gedcom, .x),
-                                               ~  tidyged::get_families_as_child(gedcom, .x),
-                                               .else = ~  get_spouses(gedcom, .x))) %>% 
+                                               ~ tidyged::get_families_as_child(gedcom, .x, birth_only = TRUE),
+                                               .else = ~ tidyged::get_famg_partners(gedcom, .x))) %>% 
     tidyr::unnest(from) %>% 
     dplyr::filter(from != "") %>% 
     dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
@@ -201,15 +195,10 @@ descendancy_chart <- function(gedcom,
                                     inc_famg = TRUE, 
                                     inc_supp = FALSE)
   
-  # get the marriages / children of all these records
-  get_children <- function(gedcom, famc) {
-    dplyr::filter(gedcom, record == famc, tag == "CHIL")$value
-  }
-  
   links <- tibble::tibble(from = xrefs) %>% 
     dplyr::mutate(to = purrr::map_if(from, ~ tidyged::is_indi(gedcom, .x),
                                        ~  tidyged::get_families_as_partner(gedcom, .x),
-                                       .else = ~ get_children(gedcom, .x))) %>% 
+                                       .else = ~ tidyged::get_famg_children(gedcom, .x, birth_only = TRUE))) %>% 
     tidyr::unnest(to) %>% 
     #dplyr::filter(from != "") %>% 
     dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
@@ -229,13 +218,14 @@ descendancy_chart <- function(gedcom,
 #'
 #' @param gedcom A tidyged object.
 #' @param family An xref identifying a Family group record.
+#' @param birth_only Whether to only show biological children.
 #'
 #' @return A chart showing a family group.
 #' @export
-family_group_chart <- function(gedcom, family) {
+family_group_chart <- function(gedcom, family, birth_only = FALSE) {
   
-  spou <- dplyr::filter(gedcom, level == 1, record == family, tag %in% c("HUSB","WIFE"))$value
-  chil <- dplyr::filter(gedcom, level == 1, record == family, tag == "CHIL")$value
+  spou <- tidyged::get_famg_partners(gedcom, family)
+  chil <- tidyged::get_famg_children(gedcom, family, birth_only)
   pedi <- purrr::map_chr(chil, 
                          ~tidyged.internals::gedcom_value( 
                            gedcom = tidyged.internals::identify_section(gedcom,1,"FAMC",family,xrefs=.x) %>% 
