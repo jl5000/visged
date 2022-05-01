@@ -24,10 +24,10 @@ node_label <- function(gedcom, xref) {
     
     alive <- nrow(dplyr::filter(gedcom, record == xref, level == 1, tag == "DEAT")) == 0
     
-    dob <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "BIRT") %>% 
+    dob <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "BIRT") |> 
       stringr::str_to_title()
     pob <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "BIRT")
-    dod <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "DEAT") %>% 
+    dod <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "DEAT") |> 
       stringr::str_to_title()
     pod <- tidyged.internals::gedcom_value(gedcom, xref, "PLAC", 2, "DEAT")
     
@@ -40,7 +40,7 @@ node_label <- function(gedcom, xref) {
            "<b>", tidyged::describe_indi(gedcom, xref, TRUE), "</b>", "<br>",
            "b. ", birth, "<br>",
            death_str,
-           "\"", ")") %>% 
+           "\"", ")") |> 
       stringr::str_replace_all("@", "")
     
   } else { #family group
@@ -63,9 +63,9 @@ node_label <- function(gedcom, xref) {
     } else if(married){
       rel <- "Married"
       marr_rows <- tidyged.internals::identify_section(gedcom, 1, "MARR", xrefs = xref)
-      marr_secs <- gedcom %>% 
-        dplyr::slice(marr_rows) %>% 
-        dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) %>% 
+      marr_secs <- gedcom |> 
+        dplyr::slice(marr_rows) |> 
+        dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) |> 
         dplyr::mutate(marr = tag == "MARR",
                       marr_no = cumsum(marr))
       for(i in seq_len(max(marr_secs$marr_no))){
@@ -73,19 +73,19 @@ node_label <- function(gedcom, xref) {
         if(nrow(dplyr::filter(sec, tag == "TYPE", value %in% c("marriage","civil","religious","common law")))>0)
           break
       }
-      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
+      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") |> 
         stringr::str_to_title()
       por <- tidyged.internals::gedcom_value(sec, xref, "PLAC", 2, "MARR")
     } else if(eng){
       rel <- "Engaged"
-      dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "ENGA") %>% 
+      dor <- tidyged.internals::gedcom_value(gedcom, xref, "DATE", 2, "ENGA") |> 
         stringr::str_to_title()
     } else if (relship) {
       rel <- "Relationship"
       marr_rows <- tidyged.internals::identify_section(gedcom, 1, "MARR", xrefs = xref)
-      marr_secs <- gedcom %>% 
-        dplyr::slice(marr_rows) %>% 
-        dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) %>% 
+      marr_secs <- gedcom |> 
+        dplyr::slice(marr_rows) |> 
+        dplyr::filter(tag %in% c("MARR","TYPE","DATE","PLAC")) |> 
         dplyr::mutate(marr = tag == "MARR",
                       marr_no = cumsum(marr))
       for(i in seq_len(max(marr_secs$marr_no))){
@@ -93,7 +93,7 @@ node_label <- function(gedcom, xref) {
         if(nrow(dplyr::filter(sec, tag == "TYPE", value %in% c("marriage","civil","religious","common law")))==0)
           break
       }
-      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") %>% 
+      dor <- tidyged.internals::gedcom_value(sec, xref, "DATE", 2, "MARR") |> 
         stringr::str_to_title()
     } else {
       rel <- "Unknown"
@@ -105,7 +105,7 @@ node_label <- function(gedcom, xref) {
            "(", "\"",
            "<b>", rel, "</b>", "<br>",
            details,
-           "\"", ")") %>% 
+           "\"", ")") |> 
       stringr::str_replace_all("@", "")
     
   }
@@ -159,19 +159,19 @@ pedigree_chart <- function(gedcom,
                                   inc_famg = TRUE, 
                                   inc_supp = FALSE)
   
-  links <- tibble::tibble(to = xrefs) %>% 
+  links <- tibble::tibble(to = xrefs) |> 
     dplyr::mutate(from = purrr::map_if(to, ~ tidyged::is_indi(gedcom, .x),
                                                ~ tidyged::get_families_as_child(gedcom, .x, birth_only = TRUE),
-                                               .else = ~ tidyged::get_famg_partners(gedcom, .x))) %>% 
-    tidyr::unnest(from) %>% 
-    dplyr::filter(from != "") %>% 
-    dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
-    dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) %>% 
-    dplyr::mutate(links = paste0(from,"-->",to)) %>% 
-    dplyr::pull(links) %>% 
+                                               .else = ~ tidyged::get_famg_partners(gedcom, .x))) |> 
+    tidyr::unnest(from) |> 
+    dplyr::filter(from != "") |> 
+    dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) |> 
+    dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) |> 
+    dplyr::mutate(links = paste0(from,"-->",to)) |> 
+    dplyr::pull(links) |> 
     paste(collapse = "; ")
   
-  styles <- purrr::map_chr(xrefs, node_style, gedcom = gedcom) %>% 
+  styles <- purrr::map_chr(xrefs, node_style, gedcom = gedcom) |> 
     paste(collapse = "; ")
 
   DiagrammeR::mermaid(paste0("graph TB;", links, ";", styles))
@@ -195,19 +195,19 @@ descendancy_chart <- function(gedcom,
                                     inc_famg = TRUE, 
                                     inc_supp = FALSE)
   
-  links <- tibble::tibble(from = xrefs) %>% 
+  links <- tibble::tibble(from = xrefs) |> 
     dplyr::mutate(to = purrr::map_if(from, ~ tidyged::is_indi(gedcom, .x),
                                        ~  tidyged::get_families_as_partner(gedcom, .x),
-                                       .else = ~ tidyged::get_famg_children(gedcom, .x, birth_only = TRUE))) %>% 
-    tidyr::unnest(to) %>% 
-    #dplyr::filter(from != "") %>% 
-    dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
-    dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) %>% 
-    dplyr::mutate(links = paste0(from,"-->",to)) %>% 
-    dplyr::pull(links) %>% 
+                                       .else = ~ tidyged::get_famg_children(gedcom, .x, birth_only = TRUE))) |> 
+    tidyr::unnest(to) |> 
+    #dplyr::filter(from != "") |> 
+    dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) |> 
+    dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) |> 
+    dplyr::mutate(links = paste0(from,"-->",to)) |> 
+    dplyr::pull(links) |> 
     paste(collapse = "; ")
 
-  styles <- purrr::map_chr(xrefs, node_style, gedcom = gedcom) %>% 
+  styles <- purrr::map_chr(xrefs, node_style, gedcom = gedcom) |> 
     paste(collapse = "; ")
   
   DiagrammeR::mermaid(paste0("graph TB;", links, ";", styles))
@@ -228,7 +228,7 @@ family_group_chart <- function(gedcom, family, birth_only = FALSE) {
   chil <- tidyged::get_famg_children(gedcom, family, birth_only)
   pedi <- purrr::map_chr(chil, 
                          ~tidyged.internals::gedcom_value( 
-                           gedcom = tidyged.internals::identify_section(gedcom,1,"FAMC",family,xrefs=.x) %>% 
+                           gedcom = tidyged.internals::identify_section(gedcom,1,"FAMC",family,xrefs=.x) |> 
                              dplyr::slice(gedcom, .),
                          record_xref = .x, tag = "PEDI", level = 2, after_tag = "FAMC"))
   pedi[pedi == ""] <- "birth"
@@ -238,14 +238,14 @@ family_group_chart <- function(gedcom, family, birth_only = FALSE) {
     tibble::tibble(from = family, to = chil, linktype = as.character(dplyr::if_else(pedi == "birth",
                                                                                     "-->",
                                                                                     paste0("-. ", pedi, " .->"))))
-  ) %>% 
-    dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) %>% 
-    dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) %>% 
-    dplyr::mutate(links = paste0(from,linktype,to)) %>% 
-    dplyr::pull(links) %>% 
+  ) |> 
+    dplyr::mutate(from = purrr::map_chr(from, node_label, gedcom = gedcom)) |> 
+    dplyr::mutate(to = purrr::map_chr(to, node_label, gedcom = gedcom)) |> 
+    dplyr::mutate(links = paste0(from,linktype,to)) |> 
+    dplyr::pull(links) |> 
     paste(collapse = "; ")
   
-  styles <- purrr::map_chr(c(spou, chil, family), node_style, gedcom = gedcom) %>% 
+  styles <- purrr::map_chr(c(spou, chil, family), node_style, gedcom = gedcom) |> 
     paste(collapse = "; ")
   
   DiagrammeR::mermaid(paste0("graph TB;", links, ";", styles))

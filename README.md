@@ -40,35 +40,41 @@ library(visged)
 #> This package assumes imported GEDCOM files are valid and very few validation checks are carried out.
 #> Several GEDCOM validators are available, including an online validator at http://ged-inline.elasticbeanstalk.com/
 
-sw <- gedcom() %>%
-  add_indi(sex = "M", indi_notes = "The central character in the Star Wars Skywalker Saga") %>%
-  add_indi_names(name_pieces(given = "Anakin", surname = "Skywalker"), type = "birth") %>%
-  add_indi_names(name_pieces(prefix = "Darth", given = "Vader"), type = "given") %>%
-  add_indi(sex = "F", indi_notes = "Queen of Naboo") %>%
-  add_indi_names(name_pieces(given = "Padme", surname = "Amidala"), type = "birth") %>% 
-  add_indi(sex = "F") %>% 
-  add_indi_names(name_pieces(given = "Leia", surname = "Skywalker"), type = "birth") %>%
-  add_indi_names(name_pieces(prefix = "Princess", given = "Leia", surname = "Organa"), type = "adoptive") %>% 
-  add_indi(sex = "M") %>%
-  add_indi_names(name_pieces(given = "Luke", surname = "Skywalker"), type = "birth") %>% 
-  add_indi(sex = "M") %>% 
-  add_indi_names(name_pieces(given = "Obi-Wan", nickname = "Ben", surname = "Kenobi"), type = "birth") %>% 
-  add_famg(husband = find_indi_name(., "Anakin"), 
-           wife = find_indi_name(., "Padme"), 
-           children = c(find_indi_name(. ,"Luke"), find_indi_name(., "Leia"))) %>%
-  activate_indi(find_indi_name(., "Anakin")) %>% 
+sw <- gedcom() |>
+  add_indi(sex = "M", indi_notes = "The central character in the Star Wars Skywalker Saga") |>
+  add_indi_names(name_pieces(given = "Anakin", surname = "Skywalker"), type = "birth") |>
+  add_indi_names(name_pieces(prefix = "Darth", given = "Vader"), type = "given") |>
+  add_indi(sex = "F", indi_notes = "Queen of Naboo") |>
+  add_indi_names(name_pieces(given = "Padme", surname = "Amidala"), type = "birth") |> 
+  add_indi(sex = "F") |> 
+  add_indi_names(name_pieces(given = "Leia", surname = "Skywalker"), type = "birth") |>
+  add_indi_names(name_pieces(prefix = "Princess", given = "Leia", surname = "Organa"), type = "adoptive") |> 
+  add_indi(sex = "M") |>
+  add_indi_names(name_pieces(given = "Luke", surname = "Skywalker"), type = "birth") |> 
+  add_indi(sex = "M") |> 
+  add_indi_names(name_pieces(given = "Obi-Wan", nickname = "Ben", surname = "Kenobi"), type = "birth")
+
+anakin_xref <- find_indi_name(sw, "Anakin")
+padme_xref <- find_indi_name(sw, "Padme")
+luke_xref <- find_indi_name(sw, "Luke")
+leia_xref <- find_indi_name(sw, "Leia")
+
+sw <- sw |>
+  add_famg(husband = anakin_xref, wife = padme_xref, 
+           children = c(luke_xref, leia_xref)) |>
+  activate_indi(anakin_xref) |> 
   add_indi_fact("death", age = "45y", cause = "Killed by son Luke",
                 fact_place = place("Second Death Star", notes = "Orbiting Endor System"))
 ```
 
 ``` r
-pedigree_chart(sw, find_indi_name(sw, "Luke"))
+pedigree_chart(sw, luke_xref)
 ```
 
 <img src="man/figures/luke_pedigree.png" width="50%" style="display: block; margin: auto;" />
 
 ``` r
-descendancy_chart(sw, find_indi_name(sw, "Anakin"))
+descendancy_chart(sw, anakin_xref)
 ```
 
 <img src="man/figures/anakin_descendancy.png" width="50%" style="display: block; margin: auto;" />
