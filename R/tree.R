@@ -228,9 +228,8 @@ family_group_chart <- function(gedcom, family, birth_only = FALSE) {
   chil <- tidyged::get_famg_children(gedcom, family, birth_only)
   pedi <- purrr::map_chr(chil, 
                          ~tidyged.internals::gedcom_value( 
-                           gedcom = tidyged.internals::identify_section(gedcom,1,"FAMC",family,xrefs=.x) |> 
-                             dplyr::slice(gedcom, .),
-                         record_xref = .x, tag = "PEDI", level = 2, after_tag = "FAMC"))
+                           gedcom = dplyr::slice(gedcom, tidyged.internals::identify_section(gedcom,1,"FAMC",family,xrefs=.x)),
+                           record_xref = .x, tag = "PEDI", level = 2, after_tag = "FAMC"))
   pedi[pedi == ""] <- "birth"
 
   links <- dplyr::bind_rows(
