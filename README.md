@@ -78,3 +78,10 @@ descendancy_chart(sw, anakin_xref)
 ```
 
 <img src="man/figures/anakin_descendancy.png" width="50%" style="display: block; margin: auto;" />
+
+If you would like to create charts showing more than one family group,
+it is highly recommended that you use the [Topola Genealogy
+Viewer](https://pewu.github.io/topola-viewer/#/).
+
+The package is also able to plot interactive timelines of facts for
+groups of individuals.
