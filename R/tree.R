@@ -131,7 +131,12 @@ node_style <- function(gedcom, xref) {
     
     gender <- tidyged.internals::gedcom_value(gedcom, xref, "SEX", 1)
     
-    style <- paste0("style ", xref, " fill:", dplyr::if_else(gender == "M", "lightblue", "pink"), ", stroke:black")
+    gendercol <- switch(gender,
+                        M = "lightblue",
+                        F = "pink",
+                        "white")
+    
+    style <- paste0("style ", xref, " fill:", gendercol, ", stroke:black")
     
   } else {
     

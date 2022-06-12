@@ -1,6 +1,6 @@
 Package: visged
 Title: Visualise GEDCOM Files
-Version: 0.3.10.9000
+Version: 0.3.11.9000
 Authors@R: 
     person(given = "Jamie",
            family = "Lendrum",
